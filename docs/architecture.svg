@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="740" viewBox="0 0 1120 740" role="img" aria-labelledby="title desc">
+  <title id="title">Agentbox: project access with a network boundary</title>
+  <desc id="desc">A Mac supplies the current project read-write and global Codex instructions and skills read-only. Codex state persists in a Docker volume. In Colima, the Codex agent and Squid proxy share an internal isolated network. Only Squid also joins the outbound network, allowing HTTPS to four specified hosts. Direct outbound traffic from the agent is blocked.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#52657a"/></marker>
+    <marker id="green-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#15734c"/></marker>
+    <style>
+      text { font-family: system-ui, -apple-system, sans-serif; fill: #203247; font-size: 16px; }
+      .title { font-size: 29px; font-weight: 700; }
+      .heading { font-size: 20px; font-weight: 650; }
+      .small { font-size: 14px; }
+      .muted { fill: #52657a; }
+      .line { fill: none; stroke: #52657a; stroke-width: 2; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1120" height="740" rx="18" fill="#f8fafc"/>
+  <text x="32" y="46" class="title">Agentbox</text>
+  <text x="32" y="76" class="muted">One command. Familiar Codex files. Your actual project path.</text>
+
+  <rect x="350" y="110" width="742" height="405" rx="16" fill="#edf2fa" stroke="#a0b2ca"/>
+  <text x="372" y="145" class="heading">Colima / Docker</text>
+  <rect x="372" y="166" width="698" height="319" rx="12" fill="#fff" stroke="#748ba7" stroke-dasharray="7 5"/>
+  <text x="392" y="195" class="small muted">INTERNAL NETWORK · ISOLATED GATEWAY</text>
+
+  <text x="32" y="145" class="heading">Selected host files</text>
+  <rect x="32" y="168" width="272" height="104" rx="10" fill="#fff" stroke="#a0b2ca"/>
+  <text x="48" y="198" class="heading">Current project</text>
+  <text x="48" y="225">Same absolute path inside</text>
+  <text x="48" y="250" class="small muted">Read / write</text>
+  <path d="M304 220 H410" class="line"/>
+
+  <rect x="32" y="298" width="272" height="114" rx="10" fill="#fff" stroke="#a0b2ca"/>
+  <text x="48" y="328" class="heading">Global Codex files</text>
+  <text x="48" y="355">~/.codex/AGENTS.md</text>
+  <text x="48" y="380">~/.codex/skills</text>
+  <text x="48" y="400" class="small muted">Read-only</text>
+  <path d="M304 353 H410" class="line"/>
+
+  <rect x="410" y="210" width="258" height="197" rx="12" fill="#e9f2ff" stroke="#3873b9" stroke-width="2"/>
+  <text x="432" y="247" class="heading">Codex agent</text>
+  <text x="432" y="280">Disposable container</text>
+  <text x="432" y="307">Non-root · no Docker socket</text>
+  <text x="432" y="334">On-request approvals</text>
+  <text x="432" y="380" class="small muted">Docker is the outer sandbox</text>
+
+  <path d="M668 294 H797" class="line"/>
+  <text x="686" y="279" class="small muted">Proxy</text>
+  <rect x="800" y="232" width="241" height="149" rx="12" fill="#e6f5ec" stroke="#15734c" stroke-width="2"/>
+  <text x="821" y="270" class="heading">Squid proxy</text>
+  <text x="821" y="304">Exact host allowlist</text>
+  <text x="821" y="334">Blocks private destinations</text>
+  <text x="821" y="361" class="small muted">No HTTPS content inspection</text>
+
+  <path d="M539 407 V446 H694" fill="none" stroke="#b13a3a" stroke-width="2"/>
+  <path d="m687 439 14 14 m0-14-14 14" stroke="#b13a3a" stroke-width="3"/>
+  <text x="714" y="451" class="small" style="fill:#b13a3a">Direct outbound blocked</text>
+
+  <rect x="32" y="556" width="615" height="144" rx="12" fill="#fff4db" stroke="#ae8131"/>
+  <text x="52" y="589" class="heading">Persistent Docker volume</text>
+  <text x="52" y="619">agentbox_codex-state → /home/node/.codex</text>
+  <text x="52" y="648">Configuration · authentication · chats · Git credentials</text>
+  <text x="52" y="678" class="small muted">Read / write · shared across project sessions</text>
+  <path d="M450 556 V407" class="line"/>
+
+  <path d="M920 381 V554" fill="none" stroke="#15734c" stroke-width="2" marker-end="url(#green-arrow)"/>
+  <rect x="851" y="492" width="139" height="34" rx="8" fill="#e6f5ec"/>
+  <text x="865" y="514" class="small" style="fill:#15734c">Outbound network</text>
+  <rect x="736" y="558" width="356" height="142" rx="12" fill="#e6f5ec" stroke="#15734c"/>
+  <text x="756" y="590" class="heading">Allowed HTTPS · port 443</text>
+  <text x="756" y="619">api.openai.com · chatgpt.com</text>
+  <text x="756" y="645">auth.openai.com · github.com</text>
+  <text x="756" y="678" class="small muted">Uploads and downloads are both possible</text>
+</svg>

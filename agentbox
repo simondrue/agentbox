@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+config_dir="$HOME/.config/agentbox"
+workspace="$(pwd -P)"
+
+# Avoid sharing the whole home directory or sandbox controls.
+if [ "$workspace" = "/" ] || [ "$workspace" = "$HOME" ]; then
+  printf 'Run agentbox from a specific project folder.\n' >&2
+  exit 1
+fi
+
+case "$config_dir/" in
+  "$workspace/"*)
+    printf 'Choose a folder outside the agentbox configuration.\n' >&2
+    exit 1
+    ;;
+esac
+
+# Require actual mount sources rather than symlinks.
+if [ -L "$HOME/.codex/AGENTS.md" ] ||
+   [ ! -f "$HOME/.codex/AGENTS.md" ]; then
+  printf '~/.codex/AGENTS.md must be a regular file, not a symlink.\n' >&2
+  exit 1
+fi
+
+if [ -L "$HOME/.codex/skills" ] ||
+   [ ! -d "$HOME/.codex/skills" ]; then
+  printf '~/.codex/skills must be a regular directory, not a symlink.\n' >&2
+  exit 1
+fi
+
+# Use Colima on macOS and Docker's selected context on Linux.
+docker_cmd=(docker)
+
+if [ "$(uname -s)" = "Darwin" ]; then
+  if ! docker --context colima info >/dev/null 2>&1; then
+    colima start
+  fi
+  docker_cmd=(docker --context colima)
+fi
+
+export AGENTBOX_WORKSPACE="$workspace"
+
+# Wait until the filtering proxy is ready.
+"${docker_cmd[@]}" compose \
+  -f "$config_dir/compose.yaml" up -d --wait proxy
+
+# Docker supplies the isolation; retain Codex's interactive approvals.
+exec "${docker_cmd[@]}" compose \
+  -f "$config_dir/compose.yaml" run --rm --no-deps agent \
+  codex --sandbox danger-full-access --ask-for-approval on-request "$@"

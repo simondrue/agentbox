@@ -1,0 +1,103 @@
+name: agentbox
+
+services:
+  agent:
+    image: agentbox:local
+    build: .
+    init: true
+    working_dir: ${AGENTBOX_WORKSPACE:?Set AGENTBOX_WORKSPACE}
+    stdin_open: true
+    tty: true
+
+    # Remove elevated Linux privileges.
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+    environment:
+      # Persistent Git settings and a project-specific ownership exception.
+      GIT_CONFIG_GLOBAL: /home/node/.codex/gitconfig
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: ${AGENTBOX_WORKSPACE:?Set AGENTBOX_WORKSPACE}
+
+      # Web requests use the filtering proxy.
+      HTTP_PROXY: http://proxy:3128
+      HTTPS_PROXY: http://proxy:3128
+      http_proxy: http://proxy:3128
+      https_proxy: http://proxy:3128
+      NO_PROXY: localhost,127.0.0.1,::1
+      no_proxy: localhost,127.0.0.1,::1
+
+    # Disable external DNS forwarding; Docker still resolves service names.
+    dns:
+      - 127.0.0.1
+
+    volumes:
+      # Share the current project at its actual path.
+      - type: bind
+        source: ${AGENTBOX_WORKSPACE:?Set AGENTBOX_WORKSPACE}
+        target: ${AGENTBOX_WORKSPACE:?Set AGENTBOX_WORKSPACE}
+        bind:
+          create_host_path: false
+
+      # Writable storage for chats, authentication, and settings.
+      - codex-state:/home/node/.codex
+
+      # Global instructions: readable but not editable by the container.
+      - type: bind
+        source: ${HOME}/.codex/AGENTS.md
+        target: /home/node/.codex/AGENTS.md
+        read_only: true
+        bind:
+          create_host_path: false
+
+      # Global skills, exposed at a supported discovery location.
+      - type: bind
+        source: ${HOME}/.codex/skills
+        target: /home/node/.codex/skills
+        read_only: true
+        bind:
+          create_host_path: false
+
+    networks:
+      - private
+    depends_on:
+      proxy:
+        condition: service_healthy
+    command: ["codex"]
+
+  proxy:
+    image: agentbox-proxy:local
+    build: ./proxy
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - type: bind
+        source: ./proxy/squid.conf
+        target: /etc/squid/squid.conf
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      - private
+      - outbound
+
+networks:
+  # Agent has no direct external route or host gateway.
+  private:
+    internal: true
+    driver_opts:
+      com.docker.network.bridge.gateway_mode_ipv4: isolated
+
+  # Only the proxy joins this network.
+  outbound: {}
+
+volumes:
+  codex-state:

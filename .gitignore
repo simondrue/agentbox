@@ -1,0 +1,11 @@
+.DS_Store
+.env
+.env.*
+.codex/
+auth.json
+.git-credentials
+github-credentials
+credentials*
+*.pem
+*.key
+__pycache__/
